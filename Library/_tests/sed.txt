@@ -1,0 +1,2 @@
+s/\blibMyLibrary\b/libMyTestLibrary/
+s/set(NAMESPACE [^)]*/set(NAMESPACE GPC\:\:Fonts/

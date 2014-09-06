@@ -1,0 +1,26 @@
+2014-09-06
+==========
+
+Yet another new project: GPC C++ templates.
+
+The goal is to make it dead easy to create new portable C++ software, be it libraries (static or shared), tools, or applications.
+
+This is supposed to be a long-term effort, and is a serious undertaking, which means that the templates, any accompanying tools, etc., must come with test cases. An untested feature is not a feature.
+
+The whole template library shall be test-driven, so the first task is to get a test system going along with the first template, which shall be a C++ library.
+
+I'm hesitating as to how to implement the scripting (i.e. how to run the tests). I'm seriously considering doing this in C++ all the way through. The alternatives are unattractive: bash is great for scripting, but not there under Windows; other scripting tools like Python, Node etc. are also great, but are serious products of their own travelling with their own luggage.
+
+Before taking that decision, what exactly do I need ? Fortunately, not much at all:
+
+- I need to be able to run the test suites for each of the templates (each template will have its own test suite), and determine whether they ran successfully or not.
+
+That's about it. Thinking about it, CMake is all I really need (plus maybe a bootstrap one-liner in bash + cmd).
+
+-> Hm. CMake seems to generate project and solution files even when the only command is message("Hello world"). Investigating...
+  - Came across "ProjectGenerator". Am gonna give it a shot, looks like an alternative to this whole templates business.
+    ... well, maybe not after all. But I have the downloaded zip ready just in case.
+
+-> Batch files it is, for now at least. They should, must, remain super-simple though.
+
+- I think SED (Stream EDitor) is the answer to generating test cases.
