@@ -1,8 +1,8 @@
-#include <gpc/fonts/mytestlibrary.hpp>
+#include <nslevel1/nslevel2/mylibrary.hpp>
 
 int main(int argc, char *argv[])
 {
-    gpc::fonts::MyClass myinst;
+    nslevel1::nslevel2::MyClass myinst;
     
     return 0;
 }

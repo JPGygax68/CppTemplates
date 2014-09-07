@@ -55,11 +55,16 @@ if ERRORLEVEL 1 ( set /a "FAILED+=1" & echo. & echo TEST FAILED: & type err.out 
 del CMakeLists.txt >nul
 cd ..
 
-::echo Can use built library in executable
+echo Can use built library in executable
 mkdir _link_with_exe >nul
 robocopy ..\link_with_exe\ .\_link_with_exe /xd "_*" /S >nul
 cd _link_with_exe
-:: TODO
+cmake -DCMAKE_INSTALL_PREFIX=%CMAKE_INSTALL_PREFIX% . >nul 2>err.out
+if ERRORLEVEL 1 ( set /a "FAILED+=1" & echo. & echo TEST FAILED at setup: & type err.out ) else (
+  set /a "PASSED+=1"
+  cmake --build . >err.out
+  if ERRORLEVEL 1 ( set /a "FAILED+=1" & echo. & echo TEST FAILED during build: & type err.out ) else (set /a "PASSED+=1")
+)
 cd ..
 
 :: Install the library

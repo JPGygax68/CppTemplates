@@ -16,8 +16,8 @@ set(PACKAGE_NAME ORGMyLibrary)
 set(SOURCE_FILES main.cpp)
 set(HEADER_FILES mylibrary.hpp)
 
-# Namespace (container for include files, added to include directory; e.g. "include/nslevel1/nslevel2")
-set(NAMESPACE NSLevel1::NSLevel2)
+# Namespace (container for include files, added to include directory; e.g. "nslevel1/nslevel2")
+set(NAMESPACE NSLevel1::NSLevel2::)
 
 # Subdirectory (below "include") for header files (will be derived from namespace if not specified)
 #set(HEADERS_SUBDIRECTORY "nslevel1/nslevel2")
@@ -124,7 +124,7 @@ if (EXAMPLE_EXTERNAL_DEPENDENCY)
 
 endif(EXAMPLE_EXTERNAL_DEPENDENCY)
 
-target_include_directories(${TARGET_NAME} PUBLIC $<INSTALL_INTERFACE:include> $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
+target_include_directories(${TARGET_NAME} PUBLIC $<INSTALL_INTERFACE:include> $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
 set_property(TARGET ${TARGET_NAME} PROPERTY VERSION ${PROJECT_VERSION})
 set_property(TARGET ${TARGET_NAME} PROPERTY SOVERSION ${VERSION_MAJOR})
 set_property(TARGET ${TARGET_NAME} PROPERTY DEBUG_POSTFIX d)
@@ -149,7 +149,7 @@ write_basic_package_version_file(
 )
 
 # installation - build tree specific package config files
-export(EXPORT ${PACKAGE_NAME}Targets FILE ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}Targets.cmake)
+export(EXPORT ${PACKAGE_NAME}Targets FILE ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}Targets.cmake NAMESPACE ${NAMESPACE})
 configure_file(${PROJECT_SOURCE_DIR}/ProjectConfig.cmake.in
     ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}Config.cmake
     @ONLY
