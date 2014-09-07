@@ -1,3 +1,0 @@
-s/\blibMyLibrary\b/libMyTestLibrary/
-s/set(NAMESPACE [^)]*/set(NAMESPACE GPC\:\:Fonts/
-s/set(HEADER_FILES [^)]*/set(HEADER_FILES mytestlibrary.hpp/

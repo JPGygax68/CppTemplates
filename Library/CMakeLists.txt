@@ -10,7 +10,7 @@ set(VERSION_MINOR 0)
 set(VERSION_PATCH 1)
 
 # Package name: define here if project name is not sufficiently unique
-#set(PACKAGE_NAME My)
+set(PACKAGE_NAME ORGMyLibrary)
 
 # Source & header files
 set(SOURCE_FILES main.cpp)
@@ -154,6 +154,8 @@ configure_file(${PROJECT_SOURCE_DIR}/ProjectConfig.cmake.in
     ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}Config.cmake
     @ONLY
 )
+
+export(PACKAGE ${PACKAGE_NAME})
 
 # installation - relocatable package config files
 configure_package_config_file(${PROJECT_SOURCE_DIR}/ProjectConfig.cmake.in
