@@ -1,5 +1,7 @@
 @echo off
 
+echo.
+echo ---------------------------------------
 echo Running tests for "Library"...
 echo.
 
@@ -29,32 +31,39 @@ cmake -DCMAKE_INSTALL_PREFIX=%CMAKE_INSTALL_PREFIX% .. >nul
 echo Building the library...
 cmake --build . >nul
 
-:: Perform checks 
+:: Perform checks
+set /a "PASSED=0"
+set /a "FAILED=0"
+
+:: Part 1: checks before installation
+
 echo Checking: built package can be found in build tree (find_package)...
 mkdir find_package
 cd find_package
 echo cmake_minimum_required(VERSION 3.0) >CMakeLists.txt
 echo project(check_find_package LANGUAGES NONE) >>CMakeLists.txt
-echo find_package(GPCFontsXXX REQUIRED) >>CMakeLists.txt
+echo find_package(GPCFonts REQUIRED) >>CMakeLists.txt
 cmake . >nul 2>err.out
-if ERRORLEVEL 1 (
-  echo.
-  echo TEST FAILED:
-  type err.out
-)
+if ERRORLEVEL 1 ( set /a "FAILED+=1" & echo. & echo TEST FAILED: & type err.out ) else (set /a "PASSED+=1")
 del CMakeLists.txt >nul
 cd ..
-
-:: TODO
 
 :: Install the library
 cmake -DBUILD_TYPE=Debug -P cmake_install.cmake >nul
 
-:: Perform checks
+:: Part 2: checks regarding installed package
+
 :: TODO
 
 :: Leave the build, then the stage directory
 cd ..
 cd .. 
+
+:: Print summary
+if %FAILED% LEQ 0 (set STATUS=PASSED) else (set STATUS=FAILED)
+echo.
+echo OVERALL STATUS: %STATUS%
+echo Passed checks: %PASSED%
+echo Failed checks: %FAILED%
 
 :end
