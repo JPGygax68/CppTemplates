@@ -12,11 +12,13 @@ mkdir stage >nul
 
 :: Copy and adapt the template
 echo Copying and adapting the template...
-robocopy ..\ .\stage\ /xd "_*" /S >nul
-sed -f CMakeLists.sed <..\CMakeLists.txt >stage\CMakeLists.txt
+robocopy ..\ .\stage\ /xd "_*" /xf mylibrary.hpp /xf mylibrary.cpp /S >nul
+mkdir stage\include >nul
 mkdir stage\include\nslevel1
 mkdir stage\include\nslevel1\nslevel2
-move  stage\include\mylibrary.hpp stage\include\nslevel1\nslevel2\ >nul
+sed -f mylibrary.hpp.sed <..\include\mylibrary.hpp >stage\include\nslevel1\nslevel2\mylibrary.hpp
+if not exist stage\src (mkdir stage\src)
+sed -f mylibrary.cpp.sed <..\src\mylibrary.cpp >stage\src\mylibrary.cpp
 
 :: Enter the build directory
 cd stage

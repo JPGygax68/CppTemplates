@@ -13,7 +13,7 @@ set(VERSION_PATCH 1)
 set(PACKAGE_NAME ORGMyLibrary)
 
 # Source & header files
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES mylibrary.cpp)
 set(HEADER_FILES mylibrary.hpp)
 
 # Namespace (container for include files, added to include directory; e.g. "nslevel1/nslevel2")
@@ -81,6 +81,17 @@ endif()
 # Create the (main) target
 add_library(${TARGET_NAME} SHARED ${TARGET_SOURCE_FILES} ${TARGET_HEADER_FILES})
 
+string(TOUPPER ${TARGET_NAME} TARGET_NAME_PREPROC)
+target_compile_definitions(${TARGET_NAME} PRIVATE ${TARGET_NAME_PREPROC}_EXPORT)
+if(MSVC)
+    target_compile_options(${TARGET_NAME} PRIVATE /W4)
+else()
+    target_compile_options(${TARGET_NAME} PRIVATE -pedantic -Wall -std=c++11)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        target_compile_options(${TARGET_NAME} PRIVATE -stdlib=libc++)
+    endif()
+endif()
+
 if (EXAMPLE_EXTERNAL_DEPENDENCY)
 
   # external dependency - hidapi
@@ -109,15 +120,6 @@ if (EXAMPLE_EXTERNAL_DEPENDENCY)
           target_link_libraries(stratcom LINK_PRIVATE ${HIDAPI_BINARY_DIR}/libhidapi.a "-framework IOKit" "-framework CoreFoundation")
       else()
           target_link_libraries(stratcom LINK_PRIVATE ${HIDAPI_BINARY_DIR}/libhidapi.a udev)
-      endif()
-  endif()
-  target_compile_definitions(stratcom PRIVATE LIBSTRATCOM_EXPORT)
-  if(MSVC)
-      target_compile_options(stratcom PRIVATE /W4)
-  else()
-      target_compile_options(stratcom PRIVATE -pedantic -Wall -std=c++11)
-      if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-          target_compile_options(stratcom PRIVATE -stdlib=libc++)
       endif()
   endif()
   target_include_directories(stratcom PRIVATE ${HIDAPI_BINARY_DIR}/hidapi)
