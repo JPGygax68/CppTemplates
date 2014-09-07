@@ -56,13 +56,13 @@ if (NOT HEADERS_SUBDIRECTORY)
 endif()
 
 # Assemble source file paths
-foreach(source SOURCE_FILES)
+foreach(source ${SOURCE_FILES})
   list(APPEND TARGET_SOURCE_FILES "src/${source}")
 endforeach()
 set(SOURCE_FILES) # do not pass to subdirs
 
 # Compose header file paths
-foreach(header HEADER_FILES)
+foreach(header ${HEADER_FILES})
   list(APPEND TARGET_HEADER_FILES "include/${HEADERS_SUBDIRECTORY}/${header}")
 endforeach()
 set(HEADER_FILES) # do not pass to subdirs
@@ -136,27 +136,27 @@ install(TARGETS ${TARGET_NAME} EXPORT ${PACKAGE_NAME}Targets
     ARCHIVE DESTINATION lib
     INCLUDES DESTINATION include
 )
-install(FILES ${TARGET_HEADER_FILES} DESTINATION include)
+install(FILES ${TARGET_HEADER_FILES} DESTINATION include/${HEADERS_SUBDIRECTORY})
 if(MSVC)
-    install(FILES $<TARGET_FILE_DIR:stratcom>/stratcomd.pdb DESTINATION bin CONFIGURATIONS Debug)
-    install(FILES LICENSE.txt DESTINATION ".")
+    install(FILES $<TARGET_FILE_DIR:${TARGET_NAME}>/${TARGET_NAME}d.pdb DESTINATION bin CONFIGURATIONS Debug)
+    #install(FILES LICENSE.txt DESTINATION ".")
 endif()
 include(CmakePackageConfigHelpers)
 write_basic_package_version_file(
     ${CMAKE_BINARY_DIR}/cmake/${PACKAGE_NAME}Version.cmake
-    VERSION ${LIBSTRATCOM_VERSION}
+    VERSION ${PACKAGE_VERSION}
     COMPATIBILITY SameMajorVersion
 )
 
 # installation - build tree specific package config files
 export(EXPORT ${PACKAGE_NAME}Targets FILE ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}Targets.cmake)
-configure_file(${MAIN_TARGET_SOURCE_DIR}/${PACKAGE_NAME}Config.cmake.in
+configure_file(${PROJECT_SOURCE_DIR}/ProjectConfig.cmake.in
     ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}Config.cmake
-    COPYONLY
+    @ONLY
 )
 
 # installation - relocatable package config files
-configure_package_config_file(${MAIN_TARGET_SOURCE_DIR}/${PACKAGE_NAME}Config.cmake.in
+configure_package_config_file(${PROJECT_SOURCE_DIR}/ProjectConfig.cmake.in
                               ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PACKAGE_NAME}Config.cmake
                               INSTALL_DESTINATION cmake
 )

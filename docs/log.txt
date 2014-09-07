@@ -24,3 +24,18 @@ That's about it. Thinking about it, CMake is all I really need (plus maybe a boo
 -> Batch files it is, for now at least. They should, must, remain super-simple though.
 
 - I think SED (Stream EDitor) is the answer to generating test cases.
+
+-----
+
+Some success! I have built a test script that takes a super-simple template, does a very small bit of customization, then calls CMake to build and install.
+
+Much remains to do: 
+
+- Testing the results:
+  - Can the library's build tree be found ?
+  - Can it be used from its installed location ?
+  - Does the package correctly report its name (with namespace) and version ?
+
+- Add tests as part of the template, and test that part of the functionality as well.
+  
+- Support for additional components
