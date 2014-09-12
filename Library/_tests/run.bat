@@ -1,9 +1,15 @@
 @echo off
 
+setlocal EnableExtensions EnableDelayedExpansion
+
 echo.
 echo ---------------------------------------
 echo Running tests for "Library"...
 echo.
+
+:: Reset check counters
+set /a "PASSED=0"
+set /a "FAILED=0"
 
 :: Create a staging area where the template will be copied and used
 echo Create a staging directory...
@@ -32,16 +38,19 @@ cmake -DCMAKE_INSTALL_PREFIX=%CMAKE_INSTALL_PREFIX% .. >nul
 :: Build the library
 echo Building the library...
 cmake --build . >nul
+if not exist debug\Mylibraryd.dll (
+  set /a "FAILED+=1" & echo. & echo TEST FAILED: no DLL obtained
+) else ( 
+  if not exist debug\Mylibraryd.lib (
+    set /a "FAILED+=1" & echo. & echo TEST FAILED: no import library obtained
+  ) else (set /a "PASSED+=1")
+)
 
-:: TODO ? There may or may not be a need to perform checks in the build 
-:: (binary) directory itself
+:: Add library output dir to path
+set PATH=%cd%\Debug;%PATH%
 
 :: Leave the build subdir
 cd ..
-
-:: Perform checks
-set /a "PASSED=0"
-set /a "FAILED=0"
 
 :: Part 1: checks before installation
 
@@ -61,11 +70,21 @@ echo Can use built library in executable
 mkdir _link_with_exe >nul
 robocopy ..\link_with_exe\ .\_link_with_exe /xd "_*" /S >nul
 cd _link_with_exe
+
 cmake -DCMAKE_INSTALL_PREFIX=%CMAKE_INSTALL_PREFIX% . >nul 2>err.out
 if ERRORLEVEL 1 ( set /a "FAILED+=1" & echo. & echo TEST FAILED at setup: & type err.out ) else (
-  set /a "PASSED+=1"
+  ::set /a "PASSED+=1"
   cmake --build . >err.out
-  if ERRORLEVEL 1 ( set /a "FAILED+=1" & echo. & echo TEST FAILED during build: & type err.out ) else (set /a "PASSED+=1")
+  if ERRORLEVEL 1 ( set /a "FAILED+=1" & echo. & echo TEST FAILED during build: & type err.out ) else (
+    Debug\main.exe >out.txt
+    find /c "Hello, this is MyClass" out.txt >nul
+    if ERRORLEVEL 1 ( 
+      set /a "FAILED+=1" & echo. & echo TEST FAILED: output does not contain expected string:
+      type out.txt
+    ) else (
+      set /a "PASSED+=1"
+    )
+  )
 )
 cd ..
 
@@ -80,6 +99,7 @@ cmake -DBUILD_TYPE=Debug -P ./build/cmake_install.cmake >nul
 cd ..
 
 :: Print summary
+:summary
 if %FAILED% LEQ 0 (set STATUS=PASSED) else (set STATUS=FAILED)
 echo.
 echo OVERALL STATUS: %STATUS%
