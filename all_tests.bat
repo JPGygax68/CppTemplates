@@ -1,7 +1,7 @@
 @echo off
 
 :: Settings for the batch file itself
-SETLOCAL EnableExtensions EnableDelayedExpansion
+setlocal EnableExtensions EnableDelayedExpansion
 
 :: Add the special tools directory to the path
 set PATH=%cd%\win32\bin;%PATH%
@@ -12,6 +12,6 @@ if exist %CMAKE_INSTALL_PREFIX% (rmdir /s /q %CMAKE_INSTALL_PREFIX%)
 mkdir %CMAKE_INSTALL_PREFIX% >nul
 
 :: Run the test on template "Library"
-cd Library\_tests
+pushd Library\_tests
 call run.bat
-cd ..\..
+popd

@@ -2,91 +2,25 @@
 
 setlocal EnableExtensions EnableDelayedExpansion
 
-echo.
-echo ---------------------------------------
-echo Running tests for "Library"...
-echo.
-
-:: Reset check counters
-set /a "PASSED=0"
-set /a "FAILED=0"
-
-:: Create a staging area where the template will be copied and used
-echo Create a staging directory...
+:: Create and enter a staging area where the template will be copied and used
+echo Creating a staging directory...
 if exist stage (rmdir stage /s /q)
 mkdir stage >nul
+pushd stage >nul
 
-:: Copy and adapt the template
-echo Copying and adapting the template...
-robocopy ..\ .\stage\ /xd "_*" /xf mylibrary.hpp /xf mylibrary.cpp /S >nul
-mkdir stage\include >nul
-mkdir stage\include\nslevel1
-mkdir stage\include\nslevel1\nslevel2
-sed -f mylibrary.hpp.sed <..\include\mylibrary.hpp >stage\include\nslevel1\nslevel2\mylibrary.hpp
-if not exist stage\src (mkdir stage\src)
-sed -f mylibrary.cpp.sed <..\src\mylibrary.cpp >stage\src\mylibrary.cpp
-
-:: Enter the build directory
-cd stage
-if not exist build (mkdir build >nul)
-cd build
-
-:: Generate the build system
-echo Running CMake configuration and generation...
-cmake -DCMAKE_INSTALL_PREFIX=%CMAKE_INSTALL_PREFIX% .. >nul
-
-:: Build the library
-echo Building the library...
-cmake --build . >nul
-if not exist debug\Mylibraryd.dll (
-  set /a "FAILED+=1" & echo. & echo TEST FAILED: no DLL obtained
-) else ( 
-  if not exist debug\Mylibraryd.lib (
-    set /a "FAILED+=1" & echo. & echo TEST FAILED: no import library obtained
-  ) else (set /a "PASSED+=1")
+:: Common setup
+call ..\build_shared.bat
+if ERRORLEVEL 1 (
+  echo Failed to build a shared library as a common basis for the tests
+  exit /b 1
 )
-
 :: Add library output dir to path
-set PATH=%cd%\Debug;%PATH%
+set PREV_PATH=%PATH%
+set PATH=%cd%\build\Debug;%PATH%
 
-:: Leave the build subdir
-cd ..
-
-:: Part 1: checks before installation
-
-echo Checking: built package can be found in build tree (find_package)...
-if exist check (rmdir /s /q check)
-mkdir check
-cd check
-echo cmake_minimum_required(VERSION 3.0) >CMakeLists.txt
-echo project(check_find_package LANGUAGES NONE) >>CMakeLists.txt
-echo find_package(ORGMyLibrary REQUIRED) >>CMakeLists.txt
-cmake . >nul 2>err.out
-if ERRORLEVEL 1 ( set /a "FAILED+=1" & echo. & echo TEST FAILED: & type err.out ) else (set /a "PASSED+=1")
-del CMakeLists.txt >nul
-cd ..
-
-echo Can use built library in executable
-mkdir _link_with_exe >nul
-robocopy ..\link_with_exe\ .\_link_with_exe /xd "_*" /S >nul
-cd _link_with_exe
-
-cmake -DCMAKE_INSTALL_PREFIX=%CMAKE_INSTALL_PREFIX% . >nul 2>err.out
-if ERRORLEVEL 1 ( set /a "FAILED+=1" & echo. & echo TEST FAILED at setup: & type err.out ) else (
-  ::set /a "PASSED+=1"
-  cmake --build . >err.out
-  if ERRORLEVEL 1 ( set /a "FAILED+=1" & echo. & echo TEST FAILED during build: & type err.out ) else (
-    Debug\main.exe >out.txt
-    find /c "Hello, this is MyClass" out.txt >nul
-    if ERRORLEVEL 1 ( 
-      set /a "FAILED+=1" & echo. & echo TEST FAILED: output does not contain expected string:
-      type out.txt
-    ) else (
-      set /a "PASSED+=1"
-    )
-  )
-)
-cd ..
+:: Run the tests operating on the library build tree
+call ..\find_package_build_tree.bat
+call ..\can_use_from_executable.bat
 
 :: Install the library
 cmake -DBUILD_TYPE=Debug -P ./build/cmake_install.cmake >nul
@@ -95,15 +29,12 @@ cmake -DBUILD_TYPE=Debug -P ./build/cmake_install.cmake >nul
 
 :: TODO
 
-:: Leave the staging directory
-cd ..
+:: Common cleanup
+call ..\common_cleanup.bat
 
-:: Print summary
-:summary
-if %FAILED% LEQ 0 (set STATUS=PASSED) else (set STATUS=FAILED)
-echo.
-echo OVERALL STATUS: %STATUS%
-echo Passed checks: %PASSED%
-echo Failed checks: %FAILED%
+:: Leave and clean up staging area
+popd
+:: TODO...
 
-:end
+:: We're done here
+endlocal
