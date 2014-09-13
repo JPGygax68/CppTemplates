@@ -6,7 +6,7 @@
 
 void MyClass::hello()
 {
-    std::cout << "Hello, this is MyClss" << std::endl;
+    std::cout << "Hello, this is MyClass" << std::endl;
 }
 
 //} // nslevel1

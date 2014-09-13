@@ -29,9 +29,10 @@ call ..\test_succeeds_after_fix.bat
 :: Install the library
 cmake -DBUILD_TYPE=Debug -P ./build/cmake_install.cmake >nul
 
-:: Part 2: checks regarding installed package
+:: Delete build tree
+rmdir build /s /q
 
-:: TODO
+call ..\find_package_install_tree.bat
 
 :: Common cleanup
 call ..\common_cleanup.bat

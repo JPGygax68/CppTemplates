@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE( dummy_test )
         obj.hello();
     }
 
-    BOOST_CHECK( output.is_equal( "Hello, this is MyClass\n" ) );
+    BOOST_CHECK( output.is_equal( "Hello, this is MyClass FIXED\n" ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

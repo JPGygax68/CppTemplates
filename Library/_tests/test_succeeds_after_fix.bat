@@ -4,10 +4,10 @@ echo.
 echo TEST: ctest reports success after the implementation is fixed
 pushd build >nul
 
-:: Fix the implementation
-sed -i "s/Hello, this is MyClss/Hello, this is MyClass/" ../src/mylibrary.cpp
+:: "Fix" the implementation
+sed -i "s/Hello, this is MyClass/Hello, this is MyClass FIXED/" ../src/mylibrary.cpp
 
-:: Rebuild the library and test
+:: Rebuild the library and test suite
 cmake --build . >std.out 2>err.out
 if ERRORLEVEL 1 (
   echo Failed to rebuild the library:
