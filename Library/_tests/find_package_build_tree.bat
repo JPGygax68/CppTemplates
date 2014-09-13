@@ -2,7 +2,7 @@ setlocal EnableExtensions EnableDelayedExpansion
 
 :: Check that find_package() is able to find the package
 echo.
-echo Test: built package can be found in build tree (find_package)...
+echo TEST: built package can be found in build tree (find_package)...
 
 if exist find_package (rmdir /s /q find_package)
 mkdir find_package

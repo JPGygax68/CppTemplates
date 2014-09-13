@@ -20,29 +20,39 @@ pushd build
 
 :: Generate the build system (by running CMake)
 echo Running CMake configuration and generation...
-cmake -DCMAKE_INSTALL_PREFIX=%CMAKE_INSTALL_PREFIX% .. >nul
+cmake -DCMAKE_INSTALL_PREFIX=%CMAKE_INSTALL_PREFIX% .. >std.out 2>err.out
+if ERRORLEVEL 1 (
+  echo CMake failed.
+  goto failure
+)
 
 :: Build the library
 echo Building the library...
-cmake --build . >nul 2>err.out
+cmake --build . >std.out 2>err.out
 if ERRORLEVEL 1 (
   echo Failed to build the library:
-  type err.out
-  exit /b 1
+  goto failure
 )
 
 :: Check that the build run generated the expected files
 :: TODO: the following checks are specific to Visual Studio
 if not exist debug\Mylibraryd.dll (
   echo FAILED to build the shared library
-  exit /b 1
+  goto failure
 )
 if not exist debug\Mylibraryd.lib (
   echo FAILED to generate the import library
-  exit /b 1
+  goto failure
 )
 
-endlocal
-
+:end
 :: Leave the build subdir
 popd
+exit /b 0
+
+:failure
+echo Error output:
+type err.out
+if exist std.out ( echo Standard output: & type std.out )
+popd
+exit /b 1

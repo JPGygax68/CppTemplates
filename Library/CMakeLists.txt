@@ -131,7 +131,24 @@ set_property(TARGET ${TARGET_NAME} PROPERTY VERSION ${PROJECT_VERSION})
 set_property(TARGET ${TARGET_NAME} PROPERTY SOVERSION ${VERSION_MAJOR})
 set_property(TARGET ${TARGET_NAME} PROPERTY DEBUG_POSTFIX d)
 
-# installation - specify files to package
+#------------------------------------------------
+# Test suite 
+
+include(CTest)
+#enable_testing()
+
+add_executable(testsuite testsuite/test.cpp)
+target_link_libraries(testsuite ${TARGET_NAME})
+
+find_package(Boost REQUIRED) # for some reason, specifying the component (unit_test_framework) won't work
+target_include_directories(testsuite PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(testsuite ${Boost_LIBRARIES})
+
+add_test(NAME testsuite COMMAND testsuite CONFIGURATIONS Debug)
+
+#------------------------------------------------
+# Installation - specify files to package
+
 install(TARGETS ${TARGET_NAME} EXPORT ${PACKAGE_NAME}Targets
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
@@ -157,6 +174,10 @@ configure_file(${PROJECT_SOURCE_DIR}/ProjectConfig.cmake.in
     @ONLY
 )
 
+#------------------------------------------------
+# Export build tree
+#
+
 export(PACKAGE ${PACKAGE_NAME})
 
 # installation - relocatable package config files
@@ -164,6 +185,11 @@ configure_package_config_file(${PROJECT_SOURCE_DIR}/ProjectConfig.cmake.in
                               ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PACKAGE_NAME}Config.cmake
                               INSTALL_DESTINATION cmake
 )
+
+#------------------------------------------------
+# Installation (final part)
+#
+
 install(EXPORT ${PACKAGE_NAME}Targets
     FILE ${PACKAGE_NAME}Targets.cmake
     DESTINATION "cmake"
@@ -174,7 +200,10 @@ install(FILES
     DESTINATION "cmake"
 )
 
+#------------------------------------------------
 # documentation
+#
+
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
     set(${PACKAGE_NAME}_DOC_DIR ${PROJECT_BINARY_DIR}/doc)
@@ -187,6 +216,10 @@ if(DOXYGEN_FOUND)
     )
     source_group("" FILES ${PROJECT_SOURCE_DIR}/Doxyfile.in)
 endif()
+
+#-------------------------------------------------
+# Example application
+#
 
 option(BUILD_EXAMPLE_APPLICATIONS "Check this option to build the sample applications" OFF)
 if(BUILD_EXAMPLE_APPLICATIONS)
