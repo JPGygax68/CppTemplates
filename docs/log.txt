@@ -1,3 +1,47 @@
+2014-09-13
+==========
+
+Ok! Some success at least, let's step back and see what I've accomplished.
+
+I have a "Library" template that I've put under the control of a set of test scripts.
+
+The template itself is small: all it contains is header file that defines a single class with a single method; a source file implementing that method; the source for a test suite executable; and a CMakeLists.txt file controlling the whole.
+
+The real value though comes from the test scripts. Those are presently implemented as Windows CMD batches only, and cover the following functionality:
+
+- The template can be used to build a (shared) library.
+ 
+- That library can be found by CMake without installing (that is, it can be used from the build tree).
+
+- The library can be linked with a CMake target of type "executable".
+
+- The test suite will report a failure before an (artificial) "bug" is "fixed".
+
+- The test suite will report success after that bug is fixed.
+
+- The library can be found by CMake once it has been installed and its build tree deleted.
+
+I think the template might be usable in its present form, though there are lots of things I haven't implemented or even though about yet:
+
+- I'm not testing debug and release builds.
+
+- I haven't even manually tested creating a static library instead of a shared one; but I'd like to test that option using the same set of scripts (meaning I'd have to introduce parameters).
+
+- There is no support for custom build tools (such as GPCBin2C) in the CMakeLists.txt template. 
+  (Not sure how I would go about testing that.)
+
+- No support for a generated/templatized config header (e.g. mylib_config.h).
+
+- There is no support for a configurable top-level namespace (such as Boost has).
+
+- There is no support for a sample/demo program.
+
+- There is no LICENSE or README file.
+
+- The test suite template is very simple and does not contain any code snippets.
+
+- There is only one template so far, the one for libraries. I need to be able to create executable projects too.
+
 2014-09-06
 ==========
 

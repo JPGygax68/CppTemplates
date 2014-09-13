@@ -134,13 +134,15 @@ set_property(TARGET ${TARGET_NAME} PROPERTY DEBUG_POSTFIX d)
 #------------------------------------------------
 # Test suite 
 
+# Prerequisites
+
 include(CTest)
 #enable_testing()
 
 add_executable(testsuite testsuite/test.cpp)
 target_link_libraries(testsuite ${TARGET_NAME})
 
-find_package(Boost REQUIRED) # for some reason, specifying the component (unit_test_framework) won't work
+find_package(Boost) # for some reason, specifying the component (unit_test_framework) won't work
 target_include_directories(testsuite PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(testsuite ${Boost_LIBRARIES})
 
