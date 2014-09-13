@@ -1,11 +1,9 @@
 setlocal EnableExtensions EnableDelayedExpansion
 
-:: Check that the library can be linked with an executable
 echo.
 echo TEST: ctest reports failure before the implementation is fixed
 pushd build >nul
 
-:: Configure the test executable project
 ctest -C Debug >log.out 2>err.out
 set test_result=%ERRORLEVEL%
 find /c "No test configuration" err.out >nul
