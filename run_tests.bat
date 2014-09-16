@@ -11,7 +11,17 @@ set CMAKE_INSTALL_PREFIX=%cd%\install
 if exist %CMAKE_INSTALL_PREFIX% (rmdir /s /q %CMAKE_INSTALL_PREFIX%)
 mkdir %CMAKE_INSTALL_PREFIX% >nul
 
+:: Variables use throughout the tests
+set ROOT=%cd%\
+
+:: Template "Library"
+
+pushd Library >nul
+set TEMPLATE_ROOT=%cd%
+
 :: Run the test on template "Library"
-pushd Library\_tests
+pushd _tests\shared_library >nul
 call run.bat
+popd
+
 popd

@@ -6,13 +6,13 @@ echo.
 
 :: Copy the template to the staging area, adapting it
 echo Copying and adapting the template...
-robocopy ..\.. . /xd "_*" /xf mylibrary.hpp /xf mylibrary.cpp /S >nul
+robocopy %TEMPLATE_ROOT% . /xd "_*" /xf mylibrary.hpp /xf mylibrary.cpp /S >nul
 mkdir include >nul
 mkdir include\nslevel1
 mkdir include\nslevel1\nslevel2
-sed -f ..\mylibrary.hpp.sed <..\..\include\mylibrary.hpp >include\nslevel1\nslevel2\mylibrary.hpp
+sed -f ..\mylibrary.hpp.sed <"%TEMPLATE_ROOT%\include\mylibrary.hpp" >include\nslevel1\nslevel2\mylibrary.hpp
 if not exist src (mkdir src)
-sed -f ..\mylibrary.cpp.sed <..\..\src\mylibrary.cpp >src\mylibrary.cpp
+sed -f ..\mylibrary.cpp.sed <"%TEMPLATE_ROOT%\src\mylibrary.cpp" >src\mylibrary.cpp
 
 :: Create and enter the out-of-source build directory
 if not exist build (mkdir build >nul)
