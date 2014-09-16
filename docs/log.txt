@@ -1,3 +1,19 @@
+2014-09-16
+==========
+
+Have begun making my template fit for header-only libraries. I copied the test scripts and now have basically two "sub" test suites, one for building a shared library and one for building a header-only one (static still pending).
+
+The present problem is that I bumped into the need (or wish) for using templating, because the declspec() attributes of MSVC turn out to be incompatible with header-only libraries. 
+
+While it would be easy to make the corresponding preprocessor code conditional, this is fairly ugly for code that has no chance of ever being built as a shared library.
+
+In fact, there is a high-level decision to be taken here: should the library template support converting the library to a different type after the scaffolding, or should it try to remove all unnecessary code so the programmer only gets what he needs?
+
+The latter approach is the one that would require templating, while generating preprocessor definitions from CMakeLists.txt would probably be sufficient for the former.
+
+I shall go with the former approach, at least for now (starting tomorrow). If support is to be added later on for cleaning up unneeded code sections, Google's CTemplate seems to be a usable library, as is the C++ Mustache port that can be found here: https://github.com/mrtazz/plustache .
+
+
 2014-09-13
 ==========
 

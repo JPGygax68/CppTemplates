@@ -19,9 +19,19 @@ set ROOT=%cd%\
 pushd Library >nul
 set TEMPLATE_ROOT=%cd%
 
-:: Run the test on template "Library"
+pushd _tests\header-only >nul
+call run.bat
+popd
+
+goto end
+
+echo.
+echo ------------------------------------
+echo.
+
 pushd _tests\shared_library >nul
 call run.bat
 popd
 
+:end
 popd

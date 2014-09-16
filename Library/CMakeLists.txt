@@ -12,6 +12,9 @@ set(VERSION_PATCH 1)
 # Package name: define here if project name is not sufficiently unique
 set(PACKAGE_NAME ORGMyLibrary)
 
+# Library type: default is "shared", other options are "static" and "header-only"
+#set(LIBRARY_TYPE "header-only")
+
 # Source & header files
 set(SOURCE_FILES mylibrary.cpp)
 set(HEADER_FILES mylibrary.hpp)
@@ -79,17 +82,24 @@ if (NOT TARGET_NAME)
 endif()
 
 # Create the (main) target
-add_library(${TARGET_NAME} SHARED ${TARGET_SOURCE_FILES} ${TARGET_HEADER_FILES})
+if (NOT LIBRARY_TYPE OR (LIBRARY_TYPE STREQUAL "shared"))
+  add_library(${TARGET_NAME} SHARED ${TARGET_SOURCE_FILES} ${TARGET_HEADER_FILES})
+elseif( LIBRARY_TYPE STREQUAL "header-only")
+  # TODO: warning if source files defined ?
+  add_library(${TARGET_NAME} INTERFACE)
+endif()
 
 string(TOUPPER ${TARGET_NAME} TARGET_NAME_PREPROC)
-target_compile_definitions(${TARGET_NAME} PRIVATE ${TARGET_NAME_PREPROC}_EXPORT)
-if(MSVC)
+if (NOT LIBRARY_TYPE STREQUAL "header-only")
+  target_compile_definitions(${TARGET_NAME} PRIVATE ${TARGET_NAME_PREPROC}_EXPORT)
+  if(MSVC)
     target_compile_options(${TARGET_NAME} PRIVATE /W4)
-else()
+  else()
     target_compile_options(${TARGET_NAME} PRIVATE -pedantic -Wall -std=c++11)
     if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        target_compile_options(${TARGET_NAME} PRIVATE -stdlib=libc++)
+      target_compile_options(${TARGET_NAME} PRIVATE -stdlib=libc++)
     endif()
+  endif()
 endif()
 
 if (EXAMPLE_EXTERNAL_DEPENDENCY)
@@ -126,10 +136,14 @@ if (EXAMPLE_EXTERNAL_DEPENDENCY)
 
 endif(EXAMPLE_EXTERNAL_DEPENDENCY)
 
-target_include_directories(${TARGET_NAME} PUBLIC $<INSTALL_INTERFACE:include> $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
-set_property(TARGET ${TARGET_NAME} PROPERTY VERSION ${PROJECT_VERSION})
-set_property(TARGET ${TARGET_NAME} PROPERTY SOVERSION ${VERSION_MAJOR})
-set_property(TARGET ${TARGET_NAME} PROPERTY DEBUG_POSTFIX d)
+if (LIBRARY_TYPE STREQUAL "header-only")
+  target_include_directories(${TARGET_NAME} INTERFACE $<INSTALL_INTERFACE:include> $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
+else()
+  target_include_directories(${TARGET_NAME} PUBLIC $<INSTALL_INTERFACE:include> $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
+  set_property(TARGET ${TARGET_NAME} PROPERTY VERSION ${PROJECT_VERSION})
+  set_property(TARGET ${TARGET_NAME} PROPERTY SOVERSION ${VERSION_MAJOR})
+  set_property(TARGET ${TARGET_NAME} PROPERTY DEBUG_POSTFIX d)
+endif()
 
 #------------------------------------------------
 # Test suite 
@@ -152,28 +166,30 @@ add_test(NAME testsuite COMMAND testsuite CONFIGURATIONS Debug)
 # Installation - specify files to package
 
 install(TARGETS ${TARGET_NAME} EXPORT ${PACKAGE_NAME}Targets
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    INCLUDES DESTINATION include
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  INCLUDES DESTINATION include
 )
 install(FILES ${TARGET_HEADER_FILES} DESTINATION include/${HEADERS_SUBDIRECTORY})
 if(MSVC)
+  if (NOT LIBRARY_TYPE STREQUAL "header-only")
     install(FILES $<TARGET_FILE_DIR:${TARGET_NAME}>/${TARGET_NAME}d.pdb DESTINATION bin CONFIGURATIONS Debug)
-    #install(FILES LICENSE.txt DESTINATION ".")
+  endif()
+  #install(FILES LICENSE.txt DESTINATION ".")
 endif()
 include(CmakePackageConfigHelpers)
 write_basic_package_version_file(
-    ${CMAKE_BINARY_DIR}/cmake/${PACKAGE_NAME}Version.cmake
-    VERSION ${PACKAGE_VERSION}
-    COMPATIBILITY SameMajorVersion
+  ${CMAKE_BINARY_DIR}/cmake/${PACKAGE_NAME}Version.cmake
+  VERSION ${PACKAGE_VERSION}
+  COMPATIBILITY SameMajorVersion
 )
 
 # installation - build tree specific package config files
 export(EXPORT ${PACKAGE_NAME}Targets FILE ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}Targets.cmake NAMESPACE ${NAMESPACE})
 configure_file(${PROJECT_SOURCE_DIR}/ProjectConfig.cmake.in
-    ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}Config.cmake
-    @ONLY
+  ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}Config.cmake
+  @ONLY
 )
 
 #------------------------------------------------
@@ -208,15 +224,15 @@ install(FILES
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
-    set(${PACKAGE_NAME}_DOC_DIR ${PROJECT_BINARY_DIR}/doc)
-    configure_file(${PROJECT_SOURCE_DIR}/Doxyfile.in ${${PACKAGE_NAME}_DOC_DIR}/Doxyfile @ONLY)
-    add_custom_target(doxygen-doc
-        COMMAND ${DOXYGEN_EXECUTABLE}
-        WORKING_DIRECTORY ${${PACKAGE_NAME}_DOC_DIR}
-        COMMENT "Building doxygen documentation"
-        SOURCES ${PROJECT_SOURCE_DIR}/Doxyfile.in
-    )
-    source_group("" FILES ${PROJECT_SOURCE_DIR}/Doxyfile.in)
+  set(${PACKAGE_NAME}_DOC_DIR ${PROJECT_BINARY_DIR}/doc)
+  configure_file(${PROJECT_SOURCE_DIR}/Doxyfile.in ${${PACKAGE_NAME}_DOC_DIR}/Doxyfile @ONLY)
+  add_custom_target(doxygen-doc
+    COMMAND ${DOXYGEN_EXECUTABLE}
+    WORKING_DIRECTORY ${${PACKAGE_NAME}_DOC_DIR}
+    COMMENT "Building doxygen documentation"
+    SOURCES ${PROJECT_SOURCE_DIR}/Doxyfile.in
+  )
+  source_group("" FILES ${PROJECT_SOURCE_DIR}/Doxyfile.in)
 endif()
 
 #-------------------------------------------------
@@ -225,10 +241,10 @@ endif()
 
 option(BUILD_EXAMPLE_APPLICATIONS "Check this option to build the sample applications" OFF)
 if(BUILD_EXAMPLE_APPLICATIONS)
-    add_subdirectory(examples)
-    if(WIN32)
-        add_custom_command(TARGET stratcom POST_BUILD 
-            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:stratcom> ${CMAKE_BINARY_DIR}/examples
-        )
-    endif()
+  add_subdirectory(examples)
+  if(WIN32)
+    add_custom_command(TARGET stratcom POST_BUILD 
+      COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:stratcom> ${CMAKE_BINARY_DIR}/examples
+    )
+  endif()
 endif()

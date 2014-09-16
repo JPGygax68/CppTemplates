@@ -1,18 +1,19 @@
 setlocal EnableExtensions EnableDelayedExpansion
 
 echo.
-echo Test setup: building a shared library
+echo Test setup: building a header-only library
 echo.
 
 :: Copy the template to the staging area, adapting it
 echo Copying and adapting the template...
-robocopy %TEMPLATE_ROOT% . /xd "_*" /xf mylibrary.hpp /xf mylibrary.cpp /S >nul
+robocopy %TEMPLATE_ROOT% . /xd "_*" /S >nul
 mkdir include >nul
 mkdir include\nslevel1
 mkdir include\nslevel1\nslevel2
 sed -f ..\mylibrary.hpp.sed <"%TEMPLATE_ROOT%\include\mylibrary.hpp" >include\nslevel1\nslevel2\mylibrary.hpp
-if not exist src (mkdir src)
-sed -f ..\mylibrary.cpp.sed <"%TEMPLATE_ROOT%\src\mylibrary.cpp" >src\mylibrary.cpp
+del include\mylibrary.hpp >nul
+rmdir /s /q src >nul
+sed -f ..\CMakeLists.sed <"%TEMPLATE_ROOT%\CMakeLists.txt" >CMakeLists.txt
 
 :: Create and enter the out-of-source build directory
 if not exist build (mkdir build >nul)
@@ -23,25 +24,6 @@ echo Running CMake configuration and generation...
 cmake -DCMAKE_INSTALL_PREFIX=%CMAKE_INSTALL_PREFIX% .. >std.out 2>err.out
 if ERRORLEVEL 1 (
   echo CMake failed.
-  goto failure
-)
-
-:: Build the library
-echo Building the library...
-cmake --build . >std.out 2>err.out
-if ERRORLEVEL 1 (
-  echo Failed to build the library:
-  goto failure
-)
-
-:: Check that the build run generated the expected files
-:: TODO: the following checks are specific to Visual Studio
-if not exist debug\Mylibraryd.dll (
-  echo FAILED to build the shared library
-  goto failure
-)
-if not exist debug\Mylibraryd.lib (
-  echo FAILED to generate the import library
   goto failure
 )
 

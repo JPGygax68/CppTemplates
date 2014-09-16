@@ -19,4 +19,6 @@ public:
 
 auto my_free_func(int arg1) -> int;
 
+// inline implementations
+
 //} // nslevel1
