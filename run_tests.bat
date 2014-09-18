@@ -19,8 +19,8 @@ set ROOT=%cd%\
 pushd Library >nul
 set TEMPLATE_ROOT=%cd%
 
-call :do_test shared_library
-::call :do_test header-only
+pushd _tests
+call run.bat
 
 goto end
 
@@ -28,15 +28,3 @@ goto end
 popd
 
 exit /b
-
-::----------------------------------------
-
-:do_test
-  echo.
-  echo ------------------------------------
-  echo.
-  pushd _tests\%1 >nul
-  call run.bat
-  popd
-  exit /b
-

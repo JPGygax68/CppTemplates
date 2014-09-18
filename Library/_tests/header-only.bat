@@ -2,14 +2,11 @@
 
 setlocal EnableExtensions EnableDelayedExpansion
 
-:: Create and enter a staging area where the template will be copied and used
-echo Creating a staging directory...
-if exist stage (rmdir stage /s /q)
-mkdir stage >nul
-pushd stage >nul
+:: Set parameters
+set LIBRARY_TYPE=header-only
 
 :: Common setup
-call ..\create_project.bat
+call ..\create_header-only.bat
 if ERRORLEVEL 1 (
   echo Failed to build a header-only library as the basis for the tests
   exit /b 1
@@ -36,10 +33,6 @@ call ..\find_package_install_tree.bat
 
 :: Common cleanup
 call ..\common_cleanup.bat
-
-:: Leave and clean up staging area
-popd
-:: TODO...
 
 :: We're done here
 endlocal

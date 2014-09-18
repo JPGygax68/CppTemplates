@@ -1,7 +1,7 @@
 setlocal EnableExtensions EnableDelayedExpansion
 
 echo.
-echo Test setup: building a shared library
+echo Test setup: instantiating the template and building a shared library
 echo.
 
 :: Copy the template to the staging area, adapting it

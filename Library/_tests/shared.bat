@@ -2,14 +2,8 @@
 
 setlocal EnableExtensions EnableDelayedExpansion
 
-:: Create and enter a staging area where the template will be copied and used
-echo Creating a staging directory...
-if exist stage (rmdir stage /s /q)
-mkdir stage >nul
-pushd stage >nul
-
 :: Common setup
-call ..\build_shared.bat
+call ..\create_shared.bat
 if ERRORLEVEL 1 (
   echo Failed to build a shared library as a common basis for the tests
   exit /b 1
@@ -44,10 +38,6 @@ call ..\can_no_longer_find_after_uninstall.bat
 
 :: Common cleanup
 call ..\common_cleanup.bat
-
-:: Leave and clean up staging area
-popd
-:: TODO...
 
 :: We're done here
 endlocal

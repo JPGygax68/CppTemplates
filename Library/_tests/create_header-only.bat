@@ -1,19 +1,19 @@
 setlocal EnableExtensions EnableDelayedExpansion
 
 echo.
-echo Test setup: building a header-only library
+echo Instanting the template and adapting it to create a header-only library
 echo.
 
 :: Copy the template to the staging area, adapting it
 echo Copying and adapting the template...
 robocopy %TEMPLATE_ROOT% . /xd "_*" /S >nul
-mkdir include >nul
+mkdir include
 mkdir include\nslevel1
 mkdir include\nslevel1\nslevel2
-sed -f ..\mylibrary.hpp.sed <"%TEMPLATE_ROOT%\include\mylibrary.hpp" >include\nslevel1\nslevel2\mylibrary.hpp
+sed -f ..\header-only\mylibrary.hpp.sed <"%TEMPLATE_ROOT%\include\mylibrary.hpp" >include\nslevel1\nslevel2\mylibrary.hpp
 del include\mylibrary.hpp >nul
 rmdir /s /q src >nul
-sed -f ..\CMakeLists.sed <"%TEMPLATE_ROOT%\CMakeLists.txt" >CMakeLists.txt
+sed -f ..\header-only\CMakeLists.sed <"%TEMPLATE_ROOT%\CMakeLists.txt" >CMakeLists.txt
 
 :: Create and enter the out-of-source build directory
 if not exist build (mkdir build >nul)
