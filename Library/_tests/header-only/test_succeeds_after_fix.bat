@@ -5,7 +5,7 @@ echo TEST: ctest reports success after the implementation is fixed
 pushd build >nul
 
 :: "Fix" the implementation
-sed -i "s/Hello, this is MyClass/Hello, this is MyClass FIXED/" ../src/mylibrary.cpp
+sed -i "s/Hello, this is MyClass/Hello, this is MyClass FIXED/" ../include/nslevel1/nslevel2/mylibrary.hpp
 
 :: Rebuild the library and test suite
 cmake --build . >std.out 2>err.out

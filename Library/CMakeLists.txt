@@ -97,7 +97,9 @@ elseif( LIBRARY_TYPE STREQUAL "header-only")
 endif()
 
 string(TOUPPER ${TARGET_NAME} TARGET_NAME_PREPROC)
-if (NOT LIBRARY_TYPE STREQUAL "header-only")
+if (LIBRARY_TYPE STREQUAL "header-only")
+  target_compile_definitions(${TARGET_NAME} INTERFACE ${TARGET_NAME_PREPROC}_HEADERONLY)
+else()
   target_compile_definitions(${TARGET_NAME} PRIVATE ${TARGET_NAME_PREPROC}_EXPORT)
   if(MSVC)
     target_compile_options(${TARGET_NAME} PRIVATE /W4)
@@ -224,6 +226,18 @@ install(FILES
     ${CMAKE_BINARY_DIR}/cmake/${PACKAGE_NAME}Version.cmake
     DESTINATION "cmake"
 )
+
+#------------------------------------------------
+# Uninstall target
+#
+
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+
+add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
 #------------------------------------------------
 # documentation

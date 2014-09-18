@@ -19,8 +19,8 @@ set ROOT=%cd%\
 pushd Library >nul
 set TEMPLATE_ROOT=%cd%
 
-call :do_test header-only
 call :do_test shared_library
+::call :do_test header-only
 
 goto end
 

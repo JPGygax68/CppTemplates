@@ -4,9 +4,9 @@ setlocal EnableExtensions EnableDelayedExpansion
 echo.
 echo TEST: built package can be found in build tree (find_package)...
 
-if exist find_package (rmdir /s /q find_package)
-mkdir find_package
-pushd find_package
+if exist find_package_build_tree (rmdir /s /q find_package_build_tree)
+mkdir find_package_build_tree
+pushd find_package_build_tree
 
 echo cmake_minimum_required(VERSION 3.0) >CMakeLists.txt
 echo project(check_find_package LANGUAGES NONE) >>CMakeLists.txt
