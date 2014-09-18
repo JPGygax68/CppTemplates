@@ -3,7 +3,7 @@
 setlocal EnableExtensions EnableDelayedExpansion
 
 :: Common setup
-call ..\create_shared.bat
+call "%TESTS_ROOT%\shared\create.bat"
 if ERRORLEVEL 1 (
   echo Failed to build a shared library as a common basis for the tests
   exit /b 1

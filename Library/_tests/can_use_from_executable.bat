@@ -4,7 +4,7 @@ setlocal EnableExtensions EnableDelayedExpansion
 echo.
 echo TEST: Can use built library in executable
 mkdir can_use_from_executable >nul
-robocopy ..\can_use_from_executable\ .\can_use_from_executable /xd "_*" /S >nul
+robocopy "%TESTS_ROOT%\can_use_from_executable" .\can_use_from_executable /xd "_*" /S >nul
 pushd can_use_from_executable
 
 :: Configure the test executable project

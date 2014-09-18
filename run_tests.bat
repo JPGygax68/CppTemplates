@@ -20,7 +20,7 @@ pushd Library >nul
 set TEMPLATE_ROOT=%cd%
 
 pushd _tests
-call run.bat
+call run_all.bat
 
 goto end
 

@@ -6,9 +6,9 @@ pushd build >nul
 
 :: "Fix" the implementation
 if "%LIBRARY_TYPE%"=="header-only" (
-  sed -i "s/Hello, this is MyClass/Hello, this is MyClass FIXED/" ../include/nslevel1/nslevel2/mylibrary.hpp
+  sed -i "s/Hello, this is MyClass/Hello, this is MyClass FIXED/" "%STAGE_DIRECTORY%/include/nslevel1/nslevel2/mylibrary.hpp"
 ) else (
-  sed -i "s/Hello, this is MyClass/Hello, this is MyClass FIXED/" ../src/mylibrary.cpp
+  sed -i "s/Hello, this is MyClass/Hello, this is MyClass FIXED/" "%STAGE_DIRECTORY%/src/mylibrary.cpp"
 )
 
 :: Rebuild the library and test suite

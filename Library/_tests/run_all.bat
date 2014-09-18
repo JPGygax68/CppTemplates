@@ -1,3 +1,5 @@
+set TESTS_ROOT=%~dp0
+
 call :run_test shared
 call :run_test header-only
 
@@ -12,6 +14,7 @@ exit /b
   if exist stage_%1 (rmdir stage_%1 /s /q)
   mkdir stage_%1 >nul
   pushd stage_%1 >nul
-  call ..\%1.bat
+  set STAGE_DIRECTORY=%cd%
+  call "%TESTS_ROOT%\%1\run.bat"
   popd
   exit /b

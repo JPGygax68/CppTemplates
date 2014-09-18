@@ -6,7 +6,7 @@ setlocal EnableExtensions EnableDelayedExpansion
 set LIBRARY_TYPE=header-only
 
 :: Common setup
-call ..\create_header-only.bat
+call "%TESTS_ROOT%\header-only\create.bat"
 if ERRORLEVEL 1 (
   echo Failed to build a header-only library as the basis for the tests
   exit /b 1
