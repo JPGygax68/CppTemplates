@@ -1,3 +1,29 @@
+2014-09-17
+==========
+
+A few thoughts about templates:
+
+- Multi-file templating:
+  
+  - Filenames should accept placeholders that can change not only the name of the produced file(s), but also their location (i.e. the placeholder can potentially be replaced with a folder hierarchy instead of just a string. [This should not be too difficult if the generated files are treated as a flat list rather than a tree.]
+  
+  - Every template file could generate zero, one or several instances.
+  
+  - Re-instancing the same version of a template with different parameters can add, move, or delete files, in addition to modifying their content
+  
+  - Re-instancing a new version of a template with the same parameters can do the same, and additionally lead to "orphaned" files.
+  
+  - Updating the template and changing the parameters should never be done in a single operation.
+  
+- Parameters:
+  
+  - The parameters should be collected in the form of a "response file".
+  
+  - Ideally, the responses would be named, not purely sequential; they could thus be considered parameters rather than just responses.
+  
+  - This is stuff for a separate library ["GPCResponses"].
+  
+  
 2014-09-16
 ==========
 

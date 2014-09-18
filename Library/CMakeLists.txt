@@ -20,7 +20,7 @@ set(SOURCE_FILES mylibrary.cpp)
 set(HEADER_FILES mylibrary.hpp)
 
 # Namespace (container for include files, added to include directory; e.g. "nslevel1/nslevel2")
-set(NAMESPACE NSLevel1::NSLevel2::)
+set(NAMESPACE NSLevel1::NSLevel2)
 
 # Subdirectory (below "include") for header files (will be derived from namespace if not specified)
 #set(HEADERS_SUBDIRECTORY "nslevel1/nslevel2")
@@ -45,6 +45,13 @@ set(VERSION_PATCH)
 # Check that we have a package name, use the project name otherwise
 if (NOT PACKAGE_NAME)
   set(PACKAGE_NAME ${PROJECT_NAME})
+endif()
+
+# Adjust namespace
+if (NAMESPACE) 
+  if (NOT NAMESPACE MATCHES "::$")
+    set(NAMESPACE "${NAMESPACE}::")
+  endif()
 endif()
 
 # Derive headers subdirectory from namespace (unless explicitly specified)

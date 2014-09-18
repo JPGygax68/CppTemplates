@@ -19,7 +19,7 @@ set ROOT=%cd%\
 pushd Library >nul
 set TEMPLATE_ROOT=%cd%
 
-pushd _tests\header-only >nul
+pushd _tests\shared_library >nul
 call run.bat
 popd
 
@@ -29,7 +29,7 @@ echo.
 echo ------------------------------------
 echo.
 
-pushd _tests\shared_library >nul
+pushd _tests\header-only >nul
 call run.bat
 popd
 
