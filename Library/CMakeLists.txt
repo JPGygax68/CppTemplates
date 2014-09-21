@@ -9,8 +9,12 @@ set(VERSION_MAJOR 0)
 set(VERSION_MINOR 0)
 set(VERSION_PATCH 1)
 
-# Package name: define here if project name is not sufficiently unique
-set(PACKAGE_NAME ORGMyLibrary)
+# Namespace (container for include files, added to include directory; e.g. "nslevel1/nslevel2")
+set(NAMESPACE NSLevel1::NSLevel2)
+
+# The "prefix" is a short form of the namespace; it will be prefixed to the package name
+# If none is specified, it will be derived from the namespace
+#set(PREFIX ORG)
 
 # Library type: default is "shared", other options are "static" and "header-only"
 #set(LIBRARY_TYPE "header-only")
@@ -19,8 +23,9 @@ set(PACKAGE_NAME ORGMyLibrary)
 set(SOURCE_FILES mylibrary.cpp)
 set(HEADER_FILES mylibrary.hpp)
 
-# Namespace (container for include files, added to include directory; e.g. "nslevel1/nslevel2")
-set(NAMESPACE NSLevel1::NSLevel2)
+# Package name
+# Default value is PREFIX + project name
+#set(PACKAGE_NAME ORGMyLibrary)
 
 # Subdirectory (below "include") for header files (will be derived from namespace if not specified)
 #set(HEADERS_SUBDIRECTORY "nslevel1/nslevel2")
@@ -42,9 +47,12 @@ set(VERSION_MAJOR)
 set(VERSION_MINOR)
 set(VERSION_PATCH)
 
-# Check that we have a package name, use the project name otherwise
-if (NOT PACKAGE_NAME)
-  set(PACKAGE_NAME ${PROJECT_NAME})
+# "Naked" project name
+string(SUBSTRING ${PROJECT_NAME} 0 3 prefix)
+if (prefix STREQUAL "lib")
+  string(SUBSTRING "${PROJECT_NAME}" 3 -1 NAKED_PROJECT_NAME)
+else()
+  set(NAKED_PROJECT_NAME "${PROJECT_NAME}")
 endif()
 
 # Adjust namespace
@@ -52,6 +60,17 @@ if (NAMESPACE)
   if (NOT NAMESPACE MATCHES "::$")
     set(NAMESPACE "${NAMESPACE}::")
   endif()
+endif()
+
+# Prefix (short form of namespace)
+if (NOT PREFIX)
+  string(REPLACE "::" "" PREFIX "${NAMESPACE}")
+  string(TOUPPER "${PREFIX}" PREFIX)
+endif()
+
+# Check that we have a package name, use the project name otherwise
+if (NOT PACKAGE_NAME)
+  set(PACKAGE_NAME "${PREFIX}${NAKED_PROJECT_NAME}")
 endif()
 
 # Derive headers subdirectory from namespace (unless explicitly specified)
@@ -79,13 +98,7 @@ set(HEADER_FILES) # do not pass to subdirs
 
 # Check / compute the name of the (main) target
 if (NOT TARGET_NAME)
-  string(SUBSTRING ${PROJECT_NAME} 0 3 prefix)
-  if (prefix STREQUAL "lib")
-    string(SUBSTRING ${PROJECT_NAME} 3 -1 TARGET_NAME)
-    message(STATUS "Target name derived from project name: ${TARGET_NAME}")
-  else()
-    set(TARGET_NAME ${PROJECT_NAME})
-  endif()
+  set(TARGET_NAME "${NAKED_PROJECT_NAME}")
 endif()
 
 # Create the (main) target
@@ -96,7 +109,8 @@ elseif( LIBRARY_TYPE STREQUAL "header-only")
   add_library(${TARGET_NAME} INTERFACE)
 endif()
 
-string(TOUPPER ${TARGET_NAME} TARGET_NAME_PREPROC)
+set(TARGET_NAME_PREPROC "${PREFIX}${TARGET_NAME}")
+string(TOUPPER ${TARGET_NAME_PREPROC} TARGET_NAME_PREPROC)
 if (LIBRARY_TYPE STREQUAL "header-only")
   target_compile_definitions(${TARGET_NAME} INTERFACE ${TARGET_NAME_PREPROC}_HEADERONLY)
 else()

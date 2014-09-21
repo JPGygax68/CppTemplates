@@ -1,3 +1,12 @@
+2014-09-21
+==========
+
+2014-09-18 (night)
+==================
+
+- TODO: Use "install" that is specific to the test (stage directory) to avoid accidental cross-use ?
+
+
 2014-09-17
 ==========
 

@@ -1,5 +1,8 @@
 @echo off
 
+:: TODO: factor out common part (= majority) into common implementation
+:: (in fact, defining the library type should be all that's needed)
+
 setlocal EnableExtensions EnableDelayedExpansion
 
 :: Common setup

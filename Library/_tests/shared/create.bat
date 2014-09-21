@@ -13,6 +13,7 @@ mkdir include\nslevel1\nslevel2
 sed -f ..\mylibrary.hpp.sed <"%TEMPLATE_ROOT%\include\mylibrary.hpp" >include\nslevel1\nslevel2\mylibrary.hpp
 if not exist src (mkdir src)
 sed -f ..\mylibrary.cpp.sed <"%TEMPLATE_ROOT%\src\mylibrary.cpp" >src\mylibrary.cpp
+sed -f ..\CMakeLists.sed <"%TEMPLATE_ROOT%\CMakeLists.txt" >CMakeLists.txt
 
 :: Create and enter the out-of-source build directory
 if not exist build (mkdir build >nul)
