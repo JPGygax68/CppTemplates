@@ -10,7 +10,7 @@ pushd after_uninstall
 
 echo cmake_minimum_required(VERSION 3.0) >CMakeLists.txt
 echo project(check_find_package LANGUAGES NONE) >>CMakeLists.txt
-echo find_package(ORGMyLibrary REQUIRED) >>CMakeLists.txt
+echo find_package(libMyOrg_MyLibrary REQUIRED) >>CMakeLists.txt
 cmake -DCMAKE_INSTALL_PREFIX=%CMAKE_INSTALL_PREFIX% . >nul 2>err.out
 if not ERRORLEVEL 1 ( 
   echo find_package^(^) can still find the library after uninstall

@@ -10,7 +10,7 @@ pushd find_package_install_tree
 
 echo cmake_minimum_required(VERSION 3.0) >CMakeLists.txt
 echo project(check_find_package LANGUAGES NONE) >>CMakeLists.txt
-echo find_package(ORGMyLibrary REQUIRED) >>CMakeLists.txt
+echo find_package(libMyOrg_MyLibrary REQUIRED) >>CMakeLists.txt
 cmake  -DCMAKE_INSTALL_PREFIX=%CMAKE_INSTALL_PREFIX% . >nul 2>err.out
 if ERRORLEVEL 1 ( 
   echo find_package^(^) cannot find the library in its install tree

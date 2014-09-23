@@ -1,5 +1,59 @@
+2014-09-23
+==========
+
+Having asked yesterday's question on StackOverflow (question 25983741), and obtained an answer - from ComicSansMS again! -, I decided to remove the NAMESPACE feature from my template. I think that doing so made using the template quite a bit simpler.
+
+One question that remains open at this point is whether or not CMake would ensure that the "lib" prefix gets prepended to shared object names on Linux. My CMakeLists.txt template strips the initial "lib" from the project name (where it is now mandatory) to derive the target name, which leads to correctly named .dll and .lib (import) filenames on Windows; but I'm not sure whether it gets re-attached under Linux by default, or if I need to take measures to ensure that myself.
+
+2014-09-22
+==========
+
+I've just hit a snag. It seems that CMake does not support having any correspondence between the namespace of an exported or installed target and the name of the generated library file.
+
+So, for example, CMake makes it easy to create packages that contain unambiguously named targets such as "MyOrg::MyLibrary" (using the NAMESPACE options of the export(EXPORT ...) and install(EXPORT ...) commands, but the actual .a, .lib, .so, or .dll files would still globally-spaced names such as "libMyLibrary.a".
+
+It is of course possible to apply namespaces to your targets yourself; in the above example, you could name your target MyOrgMyLibrary, leading to a library filename such as "libMyOrgMyLibrary.a". Which is ok I guess, except that this makes the NAMESPACE option essentially useless (or you'd end up with targets named "MyOrg::MyOrgMyLibrary"), making me think that I'm missing something.
+
+Is there a way to override the name of a generated library ? Or what would be the "right" way to ensure your library files get unambiguous names with CMake ?
+
 2014-09-21
 ==========
+
+Today I had to change - again - the way package and target names are used. This topic touches upon broader questions, so I'll try to do a little brain dump here:
+
+A package should contain exactly one software "item". This can be a "library" - though the term turns out to be misleading if that rule is obeyed! -, an executable tool, or an application.
+
+A reflection on the term "library" seems appropriate here. 
+
+I think the term originally referred to a "collection of functions", such as Fortran or C programmers would create back in the early days of programming. The term seems a bit less intuitive when the software is object-oriented, though I suppose it could be re-interpreted to mean "collection of functions and/or classes".
+
+Now, with the stated goal of having "atomic" software modules, the term becomes even less intuitive - can a library contain a single class and still be called a library ? Should the goal of having atomic modules be questioned again ? 
+
+The argument in defense of traditional, "bigger" modules goes like this: a library can contain as many books as it likes, a user of that library is still free to use only those books he is interested in.
+
+The flaw in the argument is the subtle misunderstanding of the term "library". Back when a library was a relatively small module containing a handful of functions, the library/book analogy was accurate enough; even if the library header contained a few definitions use by more than a single function, application code could indeed use a single function out of the set without incurring any negative side effects.
+
+Today however, there are many libraries that cannot be used like that, simply because they were not created to be repositories of reusable code but rather implementations of specific and often complex and interdependent functionality managing their own state - in other words, APIs. The difference between the two being fluid, no-one ever cared to create a new term to replace the overstrained word "library" - other than perhaps "module", which is alas even more overused.
+
+So, the idea of "atomic modules" is probably just a "return to origins". It will not remove the need for "bigger" modules, but can hopefully lessen it a bit.
+
+----------------
+
+A problem that can come with a lot of small modules is that of name clashes. In the C++ language itself, those can be avoided by using namespaces. Unfortunately, that mechanism does not help with the generated library files (.a, .so, .lib, .dll) - there are quite a few examples of libraries that have names that are not actually identical, but very easy to confuse.
+
+Java has dealt with this problem rather decisively. But I don't think the principle Java uses (URL components in reverse) should be applied to the C++ world. Not that it couldn't work; but the fact that, in C++, a given module nearly always requires more than one file (header and "object" or "lib" file) makes this principle unwieldy. And, more importantly, C++ simply lacks a standardized way of packaging modules.
+
+I think the best shot is the one I've been pursuing so far: letting the developer handle both namespaces and a "prefix" that is intended as a "mini-namespace" to help the generated library file(s) (if any) maintain their identity in the basically flat namespace that is created by a system's include/ and lib/ directories.
+
+So, the next TODO is to apply the prefix I've (re-)introduced today to generated library files.
+
+Also, I think I should abandon the idea of deriving the prefix from the namespace at all costs - arbitrary long strings of acronyms will not help making files easier to identify. Though I suppose that single-level namespaces are ok.
+
+There is more reflecting to be done on this subject; I wonder if I should explicitly support Boost's way of naming library files ? I'm afraid I will have to do just that - it's the only way to avoid problems stemming from incompatible compilers / runtime libraries. (Actually, the system should even be extensible so it can include further build options.)
+
+
+
+
 
 2014-09-18 (night)
 ==================

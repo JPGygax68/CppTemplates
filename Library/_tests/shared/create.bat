@@ -13,7 +13,7 @@ mkdir include\nslevel1\nslevel2
 sed -f ..\mylibrary.hpp.sed <"%TEMPLATE_ROOT%\include\mylibrary.hpp" >include\nslevel1\nslevel2\mylibrary.hpp
 if not exist src (mkdir src)
 sed -f ..\mylibrary.cpp.sed <"%TEMPLATE_ROOT%\src\mylibrary.cpp" >src\mylibrary.cpp
-sed -f ..\CMakeLists.sed <"%TEMPLATE_ROOT%\CMakeLists.txt" >CMakeLists.txt
+sed -f ..\shared\CMakeLists.sed <"%TEMPLATE_ROOT%\CMakeLists.txt" >CMakeLists.txt
 
 :: Create and enter the out-of-source build directory
 if not exist build (mkdir build >nul)
@@ -26,6 +26,7 @@ if ERRORLEVEL 1 (
   echo CMake failed.
   goto failure
 )
+if exist err.out (type err.out & del err.out >nul)
 
 :: Build the library
 echo Building the library...
@@ -37,11 +38,11 @@ if ERRORLEVEL 1 (
 
 :: Check that the build run generated the expected files
 :: TODO: the following checks are specific to Visual Studio
-if not exist debug\Mylibraryd.dll (
+if not exist debug\MyOrg_Mylibraryd.dll (
   echo FAILED to build the shared library
   goto failure
 )
-if not exist debug\Mylibraryd.lib (
+if not exist debug\MyOrg_Mylibraryd.lib (
   echo FAILED to generate the import library
   goto failure
 )

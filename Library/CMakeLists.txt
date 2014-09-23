@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 # Project name
-project(libMyLibrary)
+project(libMyOrg_MyLibrary)
 
 # Version (semantic: major, minor, patch-level)
 set(VERSION_MAJOR 0)
@@ -12,27 +12,15 @@ set(VERSION_PATCH 1)
 # Namespace (container for include files, added to include directory; e.g. "nslevel1/nslevel2")
 set(NAMESPACE NSLevel1::NSLevel2)
 
-# The "prefix" is a short form of the namespace; it will be prefixed to the package name
-# If none is specified, it will be derived from the namespace
-#set(PREFIX ORG)
-
-# Library type: default is "shared", other options are "static" and "header-only"
+# Library type: options are "shared", "static" and "header-only"
 #set(LIBRARY_TYPE "header-only")
 
 # Source & header files
 set(SOURCE_FILES mylibrary.cpp)
 set(HEADER_FILES mylibrary.hpp)
 
-# Package name
-# Default value is PREFIX + project name
-#set(PACKAGE_NAME ORGMyLibrary)
-
 # Subdirectory (below "include") for header files (will be derived from namespace if not specified)
 #set(HEADERS_SUBDIRECTORY "nslevel1/nslevel2")
-
-# Define this if it can't or shouldn't be derived from the project name
-#set(TARGET_NAME MyLibrary)
-
 
 
 
@@ -42,17 +30,33 @@ set(HEADER_FILES mylibrary.hpp)
 
 # Assemble version components into single string
 set(PROJECT_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
-# Undefine so as not to pass into subprojects
+# Undefine so as not to "bleed" into subproject settings
 set(VERSION_MAJOR)
 set(VERSION_MINOR)
 set(VERSION_PATCH)
 
-# "Naked" project name
+# Analyze project name
 string(SUBSTRING ${PROJECT_NAME} 0 3 prefix)
-if (prefix STREQUAL "lib")
-  string(SUBSTRING "${PROJECT_NAME}" 3 -1 NAKED_PROJECT_NAME)
-else()
+if (NOT (prefix STREQUAL "lib"))
+  message(WARNING "This is a library project, so its name should begin with \"lib\" by convention")
   set(NAKED_PROJECT_NAME "${PROJECT_NAME}")
+else()
+  string(SUBSTRING "${PROJECT_NAME}" 3 -1 NAKED_PROJECT_NAME)
+endif()
+
+if (LIBRARY_TYPE STREQUAL "header-only" AND SOURCE_FILES)
+  message(FATAL_ERROR "Library type is defined as \"header-only\" but SOURCE_FILES is not empty")
+endif()
+if (NOT (LIBRARY_TYPE STREQUAL "header-only") AND (NOT SOURCE_FILES))
+  message(FATAL_ERROR "SOURCE_FILES is empty but library is not \"header-only\"")
+endif()
+
+if (NOT LIBRARY_TYPE)
+  if (NOT SOURCE_FILES) 
+    set(LIBRARY_TYPE "header-only")
+  else()
+    set(LIBRARY_TYPE "shared")
+  endif()
 endif()
 
 # Adjust namespace
@@ -60,17 +64,6 @@ if (NAMESPACE)
   if (NOT NAMESPACE MATCHES "::$")
     set(NAMESPACE "${NAMESPACE}::")
   endif()
-endif()
-
-# Prefix (short form of namespace)
-if (NOT PREFIX)
-  string(REPLACE "::" "" PREFIX "${NAMESPACE}")
-  string(TOUPPER "${PREFIX}" PREFIX)
-endif()
-
-# Check that we have a package name, use the project name otherwise
-if (NOT PACKAGE_NAME)
-  set(PACKAGE_NAME "${PREFIX}${NAKED_PROJECT_NAME}")
 endif()
 
 # Derive headers subdirectory from namespace (unless explicitly specified)
@@ -84,7 +77,7 @@ if (NOT HEADERS_SUBDIRECTORY)
   message(STATUS "Headers subdirectory derived from namespace: ${HEADERS_SUBDIRECTORY}")
 endif()
 
-# Assemble source file paths
+# Compose source file paths
 foreach(source ${SOURCE_FILES})
   list(APPEND TARGET_SOURCE_FILES "src/${source}")
 endforeach()
@@ -96,25 +89,24 @@ foreach(header ${HEADER_FILES})
 endforeach()
 set(HEADER_FILES) # do not pass to subdirs
 
-# Check / compute the name of the (main) target
-if (NOT TARGET_NAME)
-  set(TARGET_NAME "${NAKED_PROJECT_NAME}")
-endif()
+# Compute the name of the (main) target
+set(TARGET_NAME "${NAKED_PROJECT_NAME}")
 
 # Create the (main) target
-if (NOT LIBRARY_TYPE OR (LIBRARY_TYPE STREQUAL "shared"))
+if (LIBRARY_TYPE STREQUAL "shared")
   add_library(${TARGET_NAME} SHARED ${TARGET_SOURCE_FILES} ${TARGET_HEADER_FILES})
+elseif (LIBRARY_TYPE STREQUAL "static")
+  add_library(${TARGET_NAME} STATIC ${TARGET_SOURCE_FILES} ${TARGET_HEADER_FILES})
 elseif( LIBRARY_TYPE STREQUAL "header-only")
   # TODO: warning if source files defined ?
   add_library(${TARGET_NAME} INTERFACE)
 endif()
 
-set(TARGET_NAME_PREPROC "${PREFIX}${TARGET_NAME}")
-string(TOUPPER ${TARGET_NAME_PREPROC} TARGET_NAME_PREPROC)
+string(TOUPPER ${TARGET_NAME} TARGET_NAME_PREPROC)
 if (LIBRARY_TYPE STREQUAL "header-only")
-  target_compile_definitions(${TARGET_NAME} INTERFACE ${TARGET_NAME_PREPROC}_HEADERONLY)
+  target_compile_definitions(${TARGET_NAME} INTERFACE ${TARGET_NAME}_HEADERONLY)
 else()
-  target_compile_definitions(${TARGET_NAME} PRIVATE ${TARGET_NAME_PREPROC}_EXPORT)
+  #target_compile_definitions(${TARGET_NAME} PRIVATE ${TARGET_NAME}_EXPORT)
   if(MSVC)
     target_compile_options(${TARGET_NAME} PRIVATE /W4)
   else()
@@ -188,7 +180,7 @@ add_test(NAME testsuite COMMAND testsuite CONFIGURATIONS Debug)
 #------------------------------------------------
 # Installation - specify files to package
 
-install(TARGETS ${TARGET_NAME} EXPORT ${PACKAGE_NAME}Targets
+install(TARGETS ${TARGET_NAME} EXPORT ${PROJECT_NAME}Targets
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
@@ -203,15 +195,15 @@ if(MSVC)
 endif()
 include(CmakePackageConfigHelpers)
 write_basic_package_version_file(
-  ${CMAKE_BINARY_DIR}/cmake/${PACKAGE_NAME}Version.cmake
+  ${CMAKE_BINARY_DIR}/cmake/${PROJECT_NAME}Version.cmake
   VERSION ${PACKAGE_VERSION}
   COMPATIBILITY SameMajorVersion
 )
 
-# installation - build tree specific package config files
-export(EXPORT ${PACKAGE_NAME}Targets FILE ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}Targets.cmake NAMESPACE ${NAMESPACE})
+# Installation - build tree specific package config files
+export(EXPORT ${PROJECT_NAME}Targets FILE "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 configure_file(${PROJECT_SOURCE_DIR}/ProjectConfig.cmake.in
-  ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}Config.cmake
+  ${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake
   @ONLY
 )
 
@@ -219,11 +211,11 @@ configure_file(${PROJECT_SOURCE_DIR}/ProjectConfig.cmake.in
 # Export build tree
 #
 
-export(PACKAGE ${PACKAGE_NAME})
+export(PACKAGE ${PROJECT_NAME})
 
-# installation - relocatable package config files
+# Installation - relocatable package config files
 configure_package_config_file(${PROJECT_SOURCE_DIR}/ProjectConfig.cmake.in
-                              ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PACKAGE_NAME}Config.cmake
+                              ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake
                               INSTALL_DESTINATION cmake
 )
 
@@ -231,13 +223,13 @@ configure_package_config_file(${PROJECT_SOURCE_DIR}/ProjectConfig.cmake.in
 # Installation (final part)
 #
 
-install(EXPORT ${PACKAGE_NAME}Targets
-    FILE ${PACKAGE_NAME}Targets.cmake
+install(EXPORT ${PROJECT_NAME}Targets
+    FILE ${PROJECT_NAME}Targets.cmake
     DESTINATION "cmake"
 )
 install(FILES
-    ${CMAKE_BINARY_DIR}/cmake/${PACKAGE_NAME}Config.cmake
-    ${CMAKE_BINARY_DIR}/cmake/${PACKAGE_NAME}Version.cmake
+    ${CMAKE_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake
+    ${CMAKE_BINARY_DIR}/cmake/${PROJECT_NAME}Version.cmake
     DESTINATION "cmake"
 )
 
@@ -261,11 +253,11 @@ add_custom_target(uninstall
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
-  set(${PACKAGE_NAME}_DOC_DIR ${PROJECT_BINARY_DIR}/doc)
-  configure_file(${PROJECT_SOURCE_DIR}/Doxyfile.in ${${PACKAGE_NAME}_DOC_DIR}/Doxyfile @ONLY)
+  set(${PROJECT_NAME}_DOC_DIR ${PROJECT_BINARY_DIR}/doc)
+  configure_file(${PROJECT_SOURCE_DIR}/Doxyfile.in ${${PROJECT_NAME}_DOC_DIR}/Doxyfile @ONLY)
   add_custom_target(doxygen-doc
     COMMAND ${DOXYGEN_EXECUTABLE}
-    WORKING_DIRECTORY ${${PACKAGE_NAME}_DOC_DIR}
+    WORKING_DIRECTORY ${${PROJECT_NAME}_DOC_DIR}
     COMMENT "Building doxygen documentation"
     SOURCES ${PROJECT_SOURCE_DIR}/Doxyfile.in
   )

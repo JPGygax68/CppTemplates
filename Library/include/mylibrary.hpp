@@ -3,18 +3,18 @@
 //namespace nslevel1 {
 
 #ifdef _WIN32
-#   ifndef ORGMYLIBRARY_HEADERONLY
-#      ifdef ORGMYLIBRARY_EXPORT
-#          define ORGMYLIBRARY_API __declspec(dllexport)
+#   ifndef MyOrg_MyLibrary_HEADERONLY
+#      ifdef MyOrg_MyLibrary_EXPORTS
+#          define MYORG_MYLIBRARY_API __declspec(dllexport)
 #      else
-#          define ORGMYLIBRARY_API __declspec(dllimport)
+#          define MYORG_MYLIBRARY_API __declspec(dllimport)
 #      endif
 #   else
-#      define ORGMYLIBRARY_API
+#      define MYORG_MYLIBRARY_API
 #   endif
 #endif
 
-class ORGMYLIBRARY_API MyClass {
+class MYORG_MYLIBRARY_API MyClass {
 public:
     void hello();
 };
