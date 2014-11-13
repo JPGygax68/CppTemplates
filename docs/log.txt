@@ -1,3 +1,48 @@
+2014-10-01
+==========
+
+Thoughts about updatable templates
+----------------------------------
+
+After trying to come up with algorithms by myself, and searching for a bit for C++ libraries providing diffing/merging functionality, and came back to the more pragmatic idea of using Git itself for the task of updating existing code.
+
+The idea is simply this:
+
+- When first running the code generator, the generator stores all parameters so it can later re-generate on the same basis.
+
+- Immediately after generating the very first version of the code (unmodified by the user), the generator creates a new special "skeleton" branch in the git repository (which it may have to create itself), to which it commits this "newborn" version. (It then switches back to the previously selected branch.)  [Note: the (hidden?) file containing the template parameters should also be committed to make sure it will there for re-runs - see below.]
+
+- The user works on the obtained skeleton, modifying and extending it as he sees fit.
+
+- When an updated version of the template becomes available, the user can issue a command that downloads (or otherwise obtains) the newest version of the template and re-generates the skeleton code, which it commits to the "skeleton" branch as a new commit.
+
+- That command then immediately starts a merge operation from the skeleton branch to the development branch. (That merge operation may or may not run to completion; if conflicts arise that cannot be resolved automatically, the user will have to reconcile the conflicts himself, the same way he would with a merge between ordinary branches.)
+
+It is difficult to appraise how difficult the skeleton-to-development branch merges would be. Current diff'ing/merging algorithms are line-based and unaware of a source file's semantics (exception: http://www.semanticmerge.com/), and know even less of the relationship between a template and the code that was generated from it. Nevertheless, the approach seems at least worth a try.
+
+As for the templating engine, as I noted before, "plustache" seems a good basis. There is no command-line version of this, but that should be relatively easy to code (except for the part handling directory structures), and CMake could be used to build it on the development platform. The right moment to do this would be when installing (or packaging) CppTemplates itself; this means that CppTemplates would need to be put on CMake's shoulders itself.
+
+All in all, this could well mean that the days of CMD-specific test scripts could soon be over; with CMake making an entrance and quite some coding ahead, adding a little more for testing doesn't seem so far out.
+
+Unless, of course, the template command line becomes a project of its own.
+
+And, oh, how about making that file-system based templating (meta-?) engine into a library with an *optional* command line interface ?
+
+*Sigh* Things are never simple, are they...
+
+
+2014-09-30
+==========
+
+- Possible TODO: automatically generate a test source file for every header file ?
+
+2014-09-29
+==========
+
+I haven't yet tried to create (and use) a library that has a "top-level" header file, i.e. one is intended to represent the whole of the lowest-level namespace instead of being a component inside it.
+
+This should probably be made into a template feature.
+
 2014-09-23
 ==========
 

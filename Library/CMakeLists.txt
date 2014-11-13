@@ -22,6 +22,9 @@ set(HEADER_FILES mylibrary.hpp)
 # Subdirectory (below "include") for header files (will be derived from namespace if not specified)
 #set(HEADERS_SUBDIRECTORY "nslevel1/nslevel2")
 
+# Testsuite
+#set(TESTSUITE_FILES part1.cpp part2.cpp)
+
 
 
 #----------------------------------------------------------------------
@@ -168,7 +171,16 @@ endif()
 include(CTest)
 #enable_testing()
 
-add_executable(testsuite testsuite/test.cpp)
+if (NOT TESTSUITE_FILES)
+    set(TESTSUITE_FILES "test.cpp")
+endif()
+
+set(testsuite_filenames "testsuite/test.cpp")
+foreach(file ${TESTSUITE_FILES})
+    list(APPEND testsuite_filenames "testsuite/${file}")
+endforeach()
+
+add_executable(testsuite ${testsuite_filenames})
 target_link_libraries(testsuite ${TARGET_NAME})
 
 find_package(Boost) # for some reason, specifying the component (unit_test_framework) won't work
@@ -228,8 +240,8 @@ install(EXPORT ${PROJECT_NAME}Targets
     DESTINATION "cmake"
 )
 install(FILES
-    ${CMAKE_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake
-    ${CMAKE_BINARY_DIR}/cmake/${PROJECT_NAME}Version.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/${PROJECT_NAME}Version.cmake
     DESTINATION "cmake"
 )
 

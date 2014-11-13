@@ -1,7 +1,5 @@
 #pragma once
 
-//namespace nslevel1 {
-
 #ifdef _WIN32
 #   ifndef MyOrg_MyLibrary_HEADERONLY
 #      ifdef MyOrg_MyLibrary_EXPORTS
@@ -13,6 +11,8 @@
 #      define MYORG_MYLIBRARY_API
 #   endif
 #endif
+
+//namespace nslevel1 {
 
 class MYORG_MYLIBRARY_API MyClass {
 public:
