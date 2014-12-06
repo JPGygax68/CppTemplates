@@ -1,3 +1,15 @@
+2014-12-06
+==========
+
+The -config template should be updated to do a find_package() on every package that is required by the one being exported.
+
+Not sure yet whether this can be done in an automated manner.
+
+--------------------
+
+Added support for embeddable files (via GPCBin2C) to the Library template. TODO: write a test case for this.
+
+
 2014-10-01
 ==========
 

@@ -19,6 +19,9 @@ set(NAMESPACE NSLevel1::NSLevel2)
 set(SOURCE_FILES mylibrary.cpp)
 set(HEADER_FILES mylibrary.hpp)
 
+# Special: embeddable files
+#set(EMBEDDABLE_FILES "text.txt" "shader.glsl")
+
 # Subdirectory (below "include") for header files (will be derived from namespace if not specified)
 #set(HEADERS_SUBDIRECTORY "nslevel1/nslevel2")
 
@@ -91,6 +94,37 @@ foreach(header ${HEADER_FILES})
   list(APPEND TARGET_HEADER_FILES "include/${HEADERS_SUBDIRECTORY}/${header}")
 endforeach()
 set(HEADER_FILES) # do not pass to subdirs
+
+# Special: embeddable files
+
+if (EMBEDDABLE_FILES)
+
+  set(GENERATED ${CMAKE_CURRENT_BINARY_DIR}/generated)
+  include_directories(${GENERATED})
+
+  # Find the GPC Bin2C utility
+  find_package(GPCBin2C REQUIRED)
+
+  # Generate header files from the embeddables
+  # (also create a list of the embeddables as source files for the target)
+  # (also create a list of embeddable header files generated from the embeddable files)
+
+  set(TARGET_EMBEDDABLE_FILES)
+  set(EMBEDDABLE_HEADER_FILES )
+  foreach(embeddable ${EMBEDDABLE_FILES})
+      set(header_file "${GENERATED}/${embeddable}.h")
+      add_custom_command(
+          OUTPUT ${header_file}
+          DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/${embeddable}
+          COMMAND GPCBin2C --input=${CMAKE_CURRENT_SOURCE_DIR}/src/${embeddable} --output=${header_file}
+      )
+      set(TARGET_EMBEDDABLE_FILES ${TARGET_EMBEDDABLE_FILES} "src/${embeddable}")
+      set(EMBEDDABLE_HEADER_FILES ${EMBEDDABLE_HEADER_FILES} ${header_file})
+  endforeach()
+
+  SOURCE_GROUP("Embeddable Files" FILES ${TARGET_EMBEDDABLE_FILES})
+
+endif(EMBEDDABLE_FILES)
 
 # Compute the name of the (main) target
 set(TARGET_NAME "${NAKED_PROJECT_NAME}")
