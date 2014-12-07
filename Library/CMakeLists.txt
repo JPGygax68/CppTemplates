@@ -22,6 +22,9 @@ set(HEADER_FILES mylibrary.hpp)
 # Special: embeddable files
 #set(EMBEDDABLE_FILES "text.txt" "shader.glsl")
 
+# Required packages
+#set(REQUIRED_PACKAGES GLEW)
+
 # Subdirectory (below "include") for header files (will be derived from namespace if not specified)
 #set(HEADERS_SUBDIRECTORY "nslevel1/nslevel2")
 
@@ -153,6 +156,20 @@ else()
     endif()
   endif()
 endif()
+
+# Dependencies on external packages
+
+foreach(pkg ${REQUIRED_PACKAGES})
+  find_package(${pkg} REQUIRED)
+  string(TOUPPER ${pkg} pkg_uc)
+  if (NOT ${${pkg_uc}_FOUND})
+    message(FATAL_ERROR "Required package not found: ${pkg}")
+  endif()
+  #message("Required package: ${pkg} \"${${pkg_uc}_FOUND}\" ${${pkg_uc}_LIBRARIES} ${${pkg_uc}_INCLUDE_DIRS}")
+  # TODO: handling for PRIVATE, PUBLIC, and INTERFACE linking)
+  target_link_libraries(${TARGET_NAME} PUBLIC ${${pkg_uc}_LIBRARIES})
+  target_include_directories(${TARGET_NAME} PUBLIC ${${pkg_uc}_INCLUDE_DIRS})
+endforeach()
 
 if (EXAMPLE_EXTERNAL_DEPENDENCY)
 
