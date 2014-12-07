@@ -130,7 +130,7 @@ if (EMBEDDABLE_FILES)
 endif(EMBEDDABLE_FILES)
 
 # Compute the name of the (main) target
-set(TARGET_NAME "${NAKED_PROJECT_NAME}")
+set(TARGET_NAME "${PROJECT_NAME}")  # used to be ${NAKED_PROJECT_NAME}
 
 # Create the (main) target
 if (LIBRARY_TYPE STREQUAL "shared")
